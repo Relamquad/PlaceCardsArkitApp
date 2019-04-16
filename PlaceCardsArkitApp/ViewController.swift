@@ -14,6 +14,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
     
+    var pokemonNode: SCNNode?
+    var frostmourneNode: SCNNode?
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -22,7 +25,11 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         // Show statistics such as fps and timing information
         sceneView.showsStatistics = true
-        
+        let pokemonScene = SCNScene(named: "art.scnassets/Pokemon.scn")
+        let frostmourneScene = SCNScene(named: "art.scnassets/frostmourne.scn")
+        pokemonNode = pokemonScene?.rootNode
+        frostmourneNode = frostmourneScene?.rootNode
+
         // Create a new scene
         // Set the scene to the view
     }
@@ -58,7 +65,28 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             let planeNode = SCNNode(geometry: plane)
             planeNode.eulerAngles.x = -.pi / 2
             node.addChildNode(planeNode)
+            var shapeNode : SCNNode?
+            switch imageAnchor.referenceImage.name {
+            case CardsType.blackJoker.rawValue:
+                shapeNode = frostmourneNode
+                shapeNode?.scale = SCNVector3(0.001, 0.001, 0.001)
+            case CardsType.colorJoker.rawValue:
+                shapeNode = pokemonNode
+                shapeNode?.scale = SCNVector3(3, 3, 3)
+            default:
+                break
+            }
+            let shapeSpin = SCNAction.rotateBy(x: 0, y: 2 * .pi, z: 0, duration: 10)
+            let reapeatSpin = SCNAction.repeatForever(shapeSpin)
+            shapeNode?.runAction(reapeatSpin)
+            guard let shape = shapeNode else { return nil }
+            node.addChildNode(shape)
         }
     return node
+    }
+    
+    enum CardsType : String{
+        case blackJoker = "BlackJoker"
+        case colorJoker = "ColorJoker"
     }
 }
